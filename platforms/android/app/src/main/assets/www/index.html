@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Currency Live</title>
+    <script src="cordova.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.rtl.min.css">
+    <style>
+        body { background-color: #0d0d0d; color: white; text-align: center; font-family: sans-serif; padding-top: 20px; }
+        .app-card { background: #1a1a1a; border-radius: 20px; padding: 25px; border-top: 5px solid #28a745; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .price-text { font-size: 2.8rem; font-weight: bold; color: #28a745; margin: 10px 0; }
+        .label-text { color: #aaa; font-size: 1.1rem; border-bottom: 1px solid #333; padding-bottom: 5px; }
+        .status-bar { font-size: 0.85rem; padding: 12px; border-radius: 12px; margin-bottom: 25px; background: #222; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="app-card">
+            <h3 class="fw-bold mb-4">نبض الصرف اليمني</h3>
+            <div id="status" class="status-bar text-warning">جاري جلب البيانات...</div>
+            <div class="mb-5">
+                <div class="label-text">الدولار الأمريكي (عدن)</div>
+                <div id="usd-val" class="price-text">--</div>
+            </div>
+            <div class="mb-5">
+                <div class="label-text">الريال السعودي (عدن)</div>
+                <div id="sar-val" class="price-text">--</div>
+            </div>
+            <button class="btn btn-success w-100 py-3 fw-bold" onclick="getPrices()">تحديث الآن</button>
+        </div>
+    </div>
+    <script>
+        async function getPrices() {
+            const status = document.getElementById('status');
+            status.innerText = 'جاري الاتصال...';
+            const apiUrl = 'https://v6.exchangerate-api.com/v6/f02aded3ffa20e4bcd54e9c9/latest/YER';
+            try {
+                const response = await fetch(apiUrl);
+                const result = await response.json();
+                const factor = 6.88;
+                document.getElementById('usd-val').innerText = Math.floor((1 / result.conversion_rates.USD) * factor);
+                document.getElementById('sar-val').innerText = Math.floor((1 / result.conversion_rates.SAR) * factor);
+                status.innerText = 'تحديث مباشر: ' + new Date().toLocaleTimeString('ar-YE');
+                status.style.color = '#28a745';
+            } catch (error) {
+                status.innerText = 'فشل! جرب VPN أو شبكة أخرى';
+                status.style.color = '#dc3545';
+            }
+        }
+        window.onload = getPrices;
+    </script>
+</body>
+</html>
